@@ -1,4 +1,4 @@
-const total_value = document.querySelector("#total-value");
+const total_value = document.querySelector("#total-value_price");
 const updateButton = document.querySelector("#bttn");
 
 updateButton.addEventListener("click", () => {

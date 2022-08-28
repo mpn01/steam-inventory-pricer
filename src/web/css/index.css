@@ -13,6 +13,7 @@ body {
     margin: 0;
     padding: 0;
     background: var(--bg-color);
+    display: flex;
 }
 
 #sidebar {
@@ -30,7 +31,41 @@ body {
 }
 
 #list {
-    display: none
+    display: grid;
+    width: 801;
+    height: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas: "skins totals" "cases cases";
+}
+
+#totals {
+    grid-column: totals;
+    grid-row: totals;
+}
+
+#total-value {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    box-shadow: 1px 4px 4px rgba(0, 0, 0, 0.1);
+    width: 150px;
+    height: 90px;
+    color: white;
+    font-family: 'Source Sans Pro';
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 30px
+}
+
+#total-value h1 {
+    font-weight: 600;
+    margin: 0;
+}
+
+#total-value h3 {
+    font-weight: 400;
+    margin: 0;
 }
 
 button {
