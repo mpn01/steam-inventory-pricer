@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+:root {
+    --primary-color: #2D303E;
+    --secondary-color: #393C4B;
+    --font-color: #E0E0E0;
+    --bg-color: #343745;
+    --shadow-color: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-color);
+}
+
+#sidebar {
+    width: 223px;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    background: #2D303E;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 14px;
+}
+
+#list {
+    display: none
+}
+
+button {
+    font-size: 13px;
+    width: 148px;
+    height: 32px;
+    color: var(--font-color);
+    font-family: 'Source Sans Pro';
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 20px
+}
+
+.button--active {
+    background: linear-gradient(93.2deg, #373945 0%, rgba(77, 83, 107, 0.46) 100%);
+    box-shadow: 1px 4px 4px rgba(0, 0, 0, 0.1);
+}
