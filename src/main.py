@@ -2,8 +2,6 @@ import requests
 import re
 import sqlite3
 import urllib.parse
-import eel
-
 # Operation on database
 
 def addSkinToInventory(itemurl: str, quantity: int):
@@ -51,11 +49,11 @@ def removeCaseFromInventory(casename : str):
     conn.execute(sql_cases, data)
     conn.commit()
 
-@eel.expose
 def getSkinPrices():
     with conn:
         result = conn.execute("SELECT * FROM skins;")
         sum = 0
+        skins_dic = {}
         skins_value = []
         for row in result:
             # Fetch and display data from Steam market
@@ -65,6 +63,7 @@ def getSkinPrices():
             price_formated = float(price_int.replace(',','.'))
             print(row[1], "=>", price_formated, "zł", "|", price_formated*row[2],"zł")
             skins_value.append(price_formated*row[2])
+            skins_dic[row[1]] = price_formated, price_formated*row[2], row[2]
             # old_price = conn.execute("SELECT price_new FROM skins")
             # for price in old_price:
             #     sql_update_prices = ("UPDATE skins SET price_old = ? WHERE name = ?")
@@ -79,7 +78,7 @@ def getSkinPrices():
         for i in range(0,len(skins_value)):
             sum = round(sum + skins_value[i], 2)
         print("Total value:", str(sum), "zł")
-    return(skins_value, sum)
+    return(skins_dic)
 
 def getCasePrices():
     result = conn.execute("SELECT * FROM cases;")
@@ -99,5 +98,3 @@ def getCasePrices():
 
 if __name__ == "__main__":
     conn = sqlite3.connect('steaminventory.db')
-    eel.init('web')
-    eel.start('index.html', size=(1024,640))
