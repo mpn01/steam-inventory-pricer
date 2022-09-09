@@ -2,7 +2,22 @@ import requests
 import re
 import sqlite3
 import urllib.parse
-# Operation on database
+import discord
+from discord import Intents
+from discord.ext import commands
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+bot = commands.Bot(command_prefix=".", intents=Intents.all())
+channel = bot.get_channel(1017927811467591741)
+
+DISCORD_KEY=os.getenv('DISCORD')
+
+@bot.event
+async def on_ready():
+    print("Listening...")
 
 def addSkinToInventory(itemurl: str, quantity: int):
     itemurl_unquoted = urllib.parse.unquote(itemurl)
@@ -49,38 +64,45 @@ def removeCaseFromInventory(casename : str):
     conn.execute(sql_cases, data)
     conn.commit()
 
-def getSkinPrices():
-    with conn:
-        result = conn.execute("SELECT * FROM skins;")
-        sum = 0
-        skins_dic = {}
-        skins_value = []
-        for row in result:
-            # Fetch and display data from Steam market
-            response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
-            price = response["lowest_price"]
-            price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
-            price_formated = float(price_int.replace(',','.'))
-            print(row[1], "=>", price_formated, "zł", "|", price_formated*row[2],"zł")
-            skins_value.append(price_formated*row[2])
-            skins_dic[row[1]] = price_formated, price_formated*row[2], row[2]
-            # old_price = conn.execute("SELECT price_new FROM skins")
-            # for price in old_price:
-            #     sql_update_prices = ("UPDATE skins SET price_old = ? WHERE name = ?")
-            #     data_update_prices = [price, row[1]]
-            #     conn.execuute(sql_update_prices, data_update_prices)
-            #     conn.commit()
-            # # Update database with new price
-            # sql = "UPDATE skins SET price_new = ? WHERE name = ?"
-            # data = [price_formated, row[1]]
-            # conn.execute(sql, data)
-            # conn.commit()
-        for i in range(0,len(skins_value)):
-            sum = round(sum + skins_value[i], 2)
-        print("Total value:", str(sum), "zł")
-    return(skins_dic)
+@bot.command(name="skins")
+async def getSkinPrices(ctx):
+    result = conn.execute("SELECT * FROM skins;")
+    sum = 0
+    skins_value = []
+    for row in result:
+        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
+        price = response["lowest_price"]
+        price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
+        price_formated = float(price_int.replace(',','.'))
+        sum_price = round(price_formated*row[2], 2)
+        # print(row[1], "=>", price_formated, "zł", "|", price_formated*row[2],"zł")
+        skins_value.append(price_formated*row[2])
+        skin_row = urllib.parse.quote(row[1])
+        skin_url = "https://steamcommunity.com/market/listings/730/"+skin_row
+        embed = discord.Embed(
+                title = row[1],
+                colour = discord.Colour.blue(),
+                url = skin_url
+            )
+        embed.set_thumbnail(url=str(row[3]))
+        embed.add_field(name = "Ilość", value=row[2], inline = False)
+        embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
+        embed.add_field(name = "Cena", value=str(sum_price)+" zł", inline = True)
+        # embed.add_field(name = "Cena netto", value=str(sum_price*0,8698)+" zł", inline = True)
+        await ctx.send(embed=embed)
 
-def getCasePrices():
+    for i in range(0,len(skins_value)):
+        sum = round(sum + skins_value[i], 2)
+    embedSumPrice = discord.Embed(
+        title = str(sum)+" zł",
+        colour = discord.Colour.green(),
+        description= "Całkowita wartość skinów"
+    )
+    await ctx.send(embed=embedSumPrice)
+    # print("Total value:", str(sum), "zł")
+
+@bot.command(name="cases")
+async def getCasePrices(ctx):
     result = conn.execute("SELECT * FROM cases;")
     sum = 0
     cases_value = []
@@ -89,12 +111,33 @@ def getCasePrices():
         price = response["lowest_price"]
         price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
         price_formated = float(price_int.replace(',','.'))
-        print(row[1],"=>", price_formated, "zł", "|", round(price_formated*row[2], 2), "zł")
+        sum_price = round(price_formated*row[2], 2)
+        # print(row[1],"=>", price_formated, "zł", "|", round(price_formated*row[2], 2), "zł")
         cases_value.append(price_formated*row[2])
+        case_row = urllib.parse.quote(row[1])
+        case_url = "https://steamcommunity.com/market/listings/730/"+case_row
+        embed = discord.Embed(
+                title = row[1],
+                colour = discord.Colour.blue(),
+                url = case_url
+            )
+        embed.set_thumbnail(url=str(row[3]))
+        embed.add_field(name = "Ilość", value=row[2], inline = False)
+        embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
+        embed.add_field(name = "Cena", value=str(sum_price)+" zł", inline = True)
+        # embed.add_field(name = "Cena netto", value=str(sum_price*0,8698)+" zł", inline = True)
+        await ctx.send(embed=embed)
+
     for i in range(0,len(cases_value)):
         sum = round(sum + cases_value[i], 2)
-    print("Total value:", str(sum), "zł")
-
+    embedSumPrice = discord.Embed(
+            title = str(sum)+" zł",
+            colour = discord.Colour.green(),
+            description= "Całkowita wartość skrzynek"
+        )
+    await ctx.send(embed=embedSumPrice)
+    # print("Total value:", str(sum), "zł")
 
 if __name__ == "__main__":
     conn = sqlite3.connect('steaminventory.db')
+    bot.run(DISCORD_KEY)

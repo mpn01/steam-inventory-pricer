@@ -8,8 +8,7 @@ with conn:
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             quantity INTEGER,
-            price_old DECIMAL,
-            price_new DECIMAL
+            img TEXT
         );
     """)
 
@@ -19,7 +18,6 @@ with conn:
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             quantity INTEGER,
-            price_old DECIMAL,
-            price_new DECIMAL
+            img TEXT
         );
     """)
