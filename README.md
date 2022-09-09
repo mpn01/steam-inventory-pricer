@@ -29,6 +29,7 @@ dotenv
 
 #### Rewrite API calls to diffrent API
 #### Fetch items from Steam Inventory to avoid adding them manually
+#### Everyday price update
 
 
 ## ©️ Credits
