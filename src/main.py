@@ -12,6 +12,7 @@ load_dotenv()
 
 bot = commands.Bot(command_prefix=".", intents=Intents.all())
 channel = bot.get_channel(1017927811467591741)
+
 DISCORD_KEY=os.getenv('DISCORD')
 
 @bot.event
