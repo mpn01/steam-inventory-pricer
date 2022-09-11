@@ -23,6 +23,8 @@ discord
 discord.ext
 os
 dotenv
+datetime
+asyncio
 ```
 
 ## 📜 Todo
