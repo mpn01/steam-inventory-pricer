@@ -1,42 +1,40 @@
-import requests
-import re
-import sqlite3
-import urllib.parse
-import discord
+import requests, re, sqlite3, urllib.parse, discord, os, datetime, asyncio
 from discord import Intents
 from discord.ext import commands
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 bot = commands.Bot(command_prefix=".", intents=Intents.all())
-channel = bot.get_channel(1017927811467591741)
-
 DISCORD_KEY=os.getenv('DISCORD')
 
-@bot.event
-async def on_ready():
-    print("Listening...")
-
-def addSkinToInventory(itemurl: str, quantity: int):
-    itemurl_unquoted = urllib.parse.unquote(itemurl)
-    itemurl_unparsed = urllib.parse.urlparse(itemurl_unquoted)
-    itemname = itemurl_unparsed.path.lstrip("/martket/listings/730/")
-    data = [itemname]
+# ---BOT commands---
+@bot.command(name="addskin")
+async def addSkinToInventory(ctx, skinurl : str, quantity : int):
+    skinurl_unquoted = urllib.parse.unquote(skinurl)
+    skinurl_unparsed = urllib.parse.urlparse(skinurl_unquoted)
+    skinname = skinurl_unparsed.path.lstrip("/martket/listings/730/")
+    data = [skinname]
     result = conn.execute("SELECT quantity FROM skins WHERE name=?;", data)
     print(result)
     for row in result:
         if row[0] > 0:
-            itemdata = [itemname, quantity]
-            conn.execute("INSERT INTO skins(name, quantity) values(?,?);", itemdata)
+            skindata = [skinname, quantity]
+            conn.execute("INSERT INTO skins(name, quantity) values(?,?);", skindata)
         elif row[0] == 0:
             quantity_increased = int(quantity) + int(row[0])
-            itemdata = [quantity_increased, itemname]
-            conn.execute("UPDATE skins SET quantity=? WHRE name=?;", itemdata)
+            skindata = [quantity_increased, skinname]
+            conn.execute("UPDATE skins SET quantity=? WHRE name=?;", skindata)
             conn.commit()
+    embed = discord.Embed(
+        title = "Case added",
+        colour = discord.Colour.green(),
+        description = skinname
+    )
+    await ctx.send(embed=embed)
 
-def addCaseToInventory(caseurl : str, quantity: int):
+@bot.command(name="addcase")
+async def addCaseToInventory(ctx, caseurl : str, quantity : int):
     caseurl_unquoted = urllib.parse.unquote(caseurl)
     caseurl_unparsed = urllib.parse.urlparse(caseurl_unquoted)
     casename = caseurl_unparsed.path.lstrip("/market/listings/730/")
@@ -46,23 +44,50 @@ def addCaseToInventory(caseurl : str, quantity: int):
         if row[0] == 0:
             casedata = [casename, quantity]
             conn.execute("INSERT INTO cases(name, quantity) values(?,?);", casedata)
+            conn.commit()
+            embed = discord.Embed(
+                title = "Case added",
+                colour = discord.Colour.green(),
+                description = casename
+            )
+            await ctx.send(embed=embed)
         elif row[0] > 0:
             quantity_increased = int(quantity) + int(row[0])
             casedata = [quantity_increased, casename]
             conn.execute("UPDATE cases SET quantity=? WHERE name=?;", casedata)
             conn.commit()
+            embed = discord.Embed(
+                title = "Added more cases",
+                colour = discord.Colour.green(),
+                description = casename
+            )
+            await ctx.send(embed=embed)
 
-def removeSkinFromInventory(itemname : str):
+@bot.command(name="removeskin")
+async def removeSkinFromInventory(ctx, skinname : str):
     sql = "DELETE FROM skins WHERE name = ?;"
-    data = [itemname];
+    data = [skinname];
     conn.execute(sql, data)
     conn.commit()
+    embed = discord.Embed(
+        title = "Skin removed",
+        description= skinname,
+        colour = discord.Colour.red()
+    )
+    await ctx.send(embed=embed)
 
-def removeCaseFromInventory(casename : str):
+@bot.command(name="removecase")
+async def removeCaseFromInventory(ctx, casename : str):
     sql_cases = "DELETE FROM cases WHERE name = ?;"
     data = [casename];
     conn.execute(sql_cases, data)
     conn.commit()
+    embed = discord.Embed(
+        title = "Case removed",
+        description= casename,
+        colour = discord.Colour.red()
+    )
+    await ctx.send(embed=embed)
 
 @bot.command(name="skins")
 async def getSkinPrices(ctx):
@@ -80,10 +105,10 @@ async def getSkinPrices(ctx):
         skin_row = urllib.parse.quote(row[1])
         skin_url = "https://steamcommunity.com/market/listings/730/"+skin_row
         embed = discord.Embed(
-                title = row[1],
-                colour = discord.Colour.blue(),
-                url = skin_url
-            )
+            title = row[1],
+            colour = discord.Colour.blue(),
+            url = skin_url
+        )
         embed.set_thumbnail(url=str(row[3]))
         embed.add_field(name = "Ilość", value=row[2], inline = False)
         embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
@@ -99,7 +124,6 @@ async def getSkinPrices(ctx):
         description= "Całkowita wartość skinów"
     )
     await ctx.send(embed=embedSumPrice)
-    # print("Total value:", str(sum), "zł")
 
 @bot.command(name="cases")
 async def getCasePrices(ctx):
@@ -131,12 +155,69 @@ async def getCasePrices(ctx):
     for i in range(0,len(cases_value)):
         sum = round(sum + cases_value[i], 2)
     embedSumPrice = discord.Embed(
-            title = str(sum)+" zł",
-            colour = discord.Colour.green(),
-            description= "Całkowita wartość skrzynek"
-        )
+        title = str(sum)+" zł",
+        colour = discord.Colour.green(),
+        description= "Całkowita wartość skrzynek"
+    )
     await ctx.send(embed=embedSumPrice)
-    # print("Total value:", str(sum), "zł")
+
+# ---Scheduled functions---
+def scheduledGetCasePrices():
+    result = conn.execute("SELECT * FROM cases;")
+    cases_price_sum = 0
+    cases_value = []
+    for row in result:
+        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
+        price = response["lowest_price"]
+        price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
+        price_formated = float(price_int.replace(',','.'))
+        cases_value.append(price_formated*row[2])
+    for i in range(0,len(cases_value)):
+        cases_price_sum = round(cases_price_sum + cases_value[i], 2)
+    return cases_price_sum
+
+def scheduledGetSkinPrices():
+    result = conn.execute("SELECT * FROM skins;")
+    skins_price_sum = 0
+    skins_value = []
+    for row in result:
+        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
+        price = response["lowest_price"]
+        price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
+        price_formated = float(price_int.replace(',','.'))
+        skins_value.append(price_formated*row[2])
+    for i in range(0,len(skins_value)):
+        skins_price_sum = round(skins_price_sum + skins_value[i], 2)
+    return skins_price_sum
+
+# every day at 10 AM send message with price of whole inventory
+async def getPrices():
+    while True:
+        now = datetime.datetime.now()
+        then = now.datetime.timedelta(days=1)
+        then.replace(hour=10, minute=00)
+        waittime = (then-now).total_seconds()
+        await asyncio.sleep(waittime)
+
+        channel = bot.get_channel(1017927811467591741)
+        cases_price_sum = scheduledGetCasePrices()
+        datetime.sleep(15)
+        skins_price_sum = scheduledGetSkinPrices()
+        sum_prices = float(round(skins_price_sum, 2))+float(round(cases_price_sum, 2))
+        print(sum_prices)
+        embed = discord.Embed(
+            title = str(sum_prices)+" zł",
+            colour = discord.Colour.yellow(),
+            description= "Całkowita wartość ekwipunku"
+        )
+        embed.add_field(name = "W skinach", value=str(skins_price_sum)+" zł", inline = True)
+        embed.add_field(name = "W skrzynkach", value=str(cases_price_sum)+" zł", inline = True)
+        await channel.send(embed=embed)
+
+@bot.event
+async def on_ready():
+    print("Listening for commands...")
+    await getPrices()
 
 if __name__ == "__main__":
     conn = sqlite3.connect('steaminventory.db')

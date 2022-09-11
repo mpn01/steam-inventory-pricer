@@ -11,6 +11,7 @@ with conn:
             img TEXT
         );
     """)
+    conn.commit()
 
 with conn:
     conn.execute("""
@@ -21,3 +22,4 @@ with conn:
             img TEXT
         );
     """)
+    conn.commit()
