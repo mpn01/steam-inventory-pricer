@@ -17,4 +17,4 @@ jobs:
         script: |
           cd /home/marcin/prod/python/steam-inventory-notifier
           git fetch --all
-          pm2 reload steam-inventory-notifier
+          pm2 reload steam-discord-notifier
