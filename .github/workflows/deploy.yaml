@@ -16,5 +16,5 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd /home/marcin/prod/python/steam-inventory-notifier
-          git fetch --all
+          git pull
           pm2 reload steam-discord-notifier
