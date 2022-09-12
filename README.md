@@ -4,7 +4,11 @@
 A program written in Python to monitor your prices of your CS:GO items. This program is working as an Discord BOT.
 
 ## 💻 Usage
-To use this program you need to create SQLite database and complete it with your CS:GO items. For now, it's the only way it works. Then you need to configure your Discord BOT. I'm not providing it for you.
+To use this program you need to create SQLite database and complete it with your CS:GO items. For now, it's the only way it works. You can use script called `create_db.py`. Then you need to configure your Discord BOT. Simply, just make an .env file and insert your BOT token there, it should look like this:
+
+```env
+DISCORD=y0u4t0k3n
+```
 
 There are six commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase`. First two commands displays every item from inventory. The rest are just operations on database to add/remove items. There is also daily message at 10 AM which displays current value of your inventory.
 
