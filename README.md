@@ -31,6 +31,6 @@ asyncio
 
 - [x] Add daily message about price
 - [ ] Rewrite API calls to diffrent API
-- [ ] Fetch items from Steam Inventory to avoid adding them manually
+- [x] Fetch items from Steam Inventory to avoid adding them manually
 
 ## ©️ Credits
