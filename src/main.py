@@ -1,4 +1,3 @@
-from calendar import c
 import requests, re, sqlite3, urllib.parse, discord, os, datetime, asyncio
 from discord import Intents
 from discord.ext import commands
