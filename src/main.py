@@ -1,7 +1,9 @@
+from calendar import c
 import requests, re, sqlite3, urllib.parse, discord, os, datetime, asyncio
 from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -104,12 +106,16 @@ async def getSkinPrices(ctx):
         skins_value.append(price_formated*row[2])
         skin_row = urllib.parse.quote(row[1])
         skin_url = "https://steamcommunity.com/market/listings/730/"+skin_row
+        img_url = requests.get(skin_url)
+        soup = BeautifulSoup(img_url.text, 'html.parser')
+        for item in soup.select('.market_listing_largeimage'):
+            skin_thumbnail = item.find('img').attrs['src']
         embed = discord.Embed(
             title = row[1],
             colour = discord.Colour.blue(),
             url = skin_url
         )
-        embed.set_thumbnail(url=str(row[3]))
+        embed.set_thumbnail(url=str(skin_thumbnail))
         embed.add_field(name = "Ilość", value=row[2], inline = False)
         embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
         embed.add_field(name = "Cena", value=str(sum_price)+" zł", inline = True)
@@ -140,12 +146,16 @@ async def getCasePrices(ctx):
         cases_value.append(price_formated*row[2])
         case_row = urllib.parse.quote(row[1])
         case_url = "https://steamcommunity.com/market/listings/730/"+case_row
+        img_url = requests.get(case_url)
+        soup = BeautifulSoup(img_url.text, 'html.parser')
+        for item in soup.select('.market_listing_largeimage'):
+            case_thumbnail = item.find('img').attrs['src']
         embed = discord.Embed(
-                title = row[1],
-                colour = discord.Colour.blue(),
-                url = case_url
-            )
-        embed.set_thumbnail(url=str(row[3]))
+            title = row[1],
+            colour = discord.Colour.blue(),
+            url = case_url
+        )
+        embed.set_thumbnail(url=str(case_thumbnail))
         embed.add_field(name = "Ilość", value=row[2], inline = False)
         embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
         embed.add_field(name = "Cena", value=str(sum_price)+" zł", inline = True)
@@ -221,4 +231,4 @@ async def on_ready():
 
 if __name__ == "__main__":
     conn = sqlite3.connect('steaminventory.db')
-    bot.run(DISCORD_KEY)
+    bot.run(DISCORD_KEY)    
