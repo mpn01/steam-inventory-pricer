@@ -204,7 +204,7 @@ async def getPrices():
     while True:
         now = datetime.datetime.now()
         then = now+datetime.timedelta(days=1)
-        then.replace(hour=11, minute=35)
+        then.replace(hour=11, minute=38)
         waittime = (then-now).total_seconds()
         await asyncio.sleep(waittime)
 
