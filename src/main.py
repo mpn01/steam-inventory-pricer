@@ -194,7 +194,7 @@ def scheduledGetSkinPrices():
 async def getPrices():
     while True:
         now = datetime.datetime.now()
-        then = now.datetime.timedelta(days=1)
+        then = now+datetime.timedelta(days=1)
         then.replace(hour=10, minute=00)
         waittime = (then-now).total_seconds()
         await asyncio.sleep(waittime)
