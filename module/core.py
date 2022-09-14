@@ -1,8 +1,19 @@
-import requests, re, sqlite3, urllib.parse, discord, os, datetime, asyncio
+import requests
+import re
+import sqlite3
+import urllib.parse
+import discord 
+import os
+import datetime
+import asyncio
+from commands import skins
+from commands import cases
+from commands import addcase
+from commands import addskin
 from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
-from bs4 import BeautifulSoup
+
 
 load_dotenv()
 
@@ -11,28 +22,22 @@ DISCORD_KEY=os.getenv('DISCORD')
 
 # ---BOT commands---
 @bot.command(name="addskin")
-async def addSkinToInventory(ctx, skinurl : str, quantity : int):
-    skinurl_unquoted = urllib.parse.unquote(skinurl)
-    skinurl_unparsed = urllib.parse.urlparse(skinurl_unquoted)
-    skinname = skinurl_unparsed.path.lstrip("/martket/listings/730/")
-    data = [skinname]
-    result = conn.execute("SELECT quantity FROM skins WHERE name=?;", data)
-    print(result)
-    for row in result:
-        if row[0] > 0:
-            skindata = [skinname, quantity]
-            conn.execute("INSERT INTO skins(name, quantity) values(?,?);", skindata)
-        elif row[0] == 0:
-            quantity_increased = int(quantity) + int(row[0])
-            skindata = [quantity_increased, skinname]
-            conn.execute("UPDATE skins SET quantity=? WHRE name=?;", skindata)
-            conn.commit()
-    embed = discord.Embed(
-        title = "Case added",
-        colour = discord.Colour.green(),
-        description = skinname
-    )
-    await ctx.send(embed=embed)
+async def command_addSkinToInventory(ctx, skinurl : str, quantity : int):
+    for fetched_result, skinname in addskin.addCaseToInventory(skinurl, quantity):
+        if fetched_result == 0:
+            embed = discord.Embed(
+                title = "Skin added",
+                colour = discord.Colour.green(),
+                description = skinname
+            )
+            await ctx.send(embed=embed)
+        elif fetched_result == 1:
+            embed = discord.Embed(
+                title = "Added "+str(quantity)+" more cases",
+                colour = discord.Colour.green(),
+                description = skinname
+            )
+            await ctx.send(embed=embed)
 
 @bot.command(name="addcase")
 async def addCaseToInventory(ctx, caseurl : str, quantity : int):
@@ -40,25 +45,27 @@ async def addCaseToInventory(ctx, caseurl : str, quantity : int):
     caseurl_unparsed = urllib.parse.urlparse(caseurl_unquoted)
     casename = caseurl_unparsed.path.lstrip("/market/listings/730/")
     data = [casename]
-    result = conn.execute("SELECT quantity FROM cases WHERE name=?;", data)
-    for row in result:
-        if row[0] == 0:
-            casedata = [casename, quantity]
-            conn.execute("INSERT INTO cases(name, quantity) values(?,?);", casedata)
-            conn.commit()
-            embed = discord.Embed(
-                title = "Case added",
-                colour = discord.Colour.green(),
-                description = casename
-            )
-            await ctx.send(embed=embed)
-        elif row[0] > 0:
-            quantity_increased = int(quantity) + int(row[0])
+    result = conn.execute("SELECT EXISTS(SELECT quantity FROM cases WHERE name=?);", data)
+    fetched_result = result.fetchone()[0]
+    if fetched_result == 0:
+        casedata = [casename, quantity]
+        conn.execute("INSERT INTO cases(name, quantity) values(?,?);", casedata)
+        conn.commit()
+        embed = discord.Embed(
+            title = "Case added",
+            colour = discord.Colour.green(),
+            description = casename
+        )
+        await ctx.send(embed=embed)
+    elif fetched_result == 1:
+        result_quantity = conn.execute("SELECT quantity FROM cases WHERE name=?", data)
+        for x in result_quantity:
+            quantity_increased = int(quantity) + int(x[0])
             casedata = [quantity_increased, casename]
             conn.execute("UPDATE cases SET quantity=? WHERE name=?;", casedata)
             conn.commit()
             embed = discord.Embed(
-                title = "Added more cases",
+                title = "Added "+str(quantity)+" more cases",
                 colour = discord.Colour.green(),
                 description = casename
             )
@@ -91,36 +98,22 @@ async def removeCaseFromInventory(ctx, casename : str):
     await ctx.send(embed=embed)
 
 @bot.command(name="skins")
-async def getSkinPrices(ctx):
-    result = conn.execute("SELECT * FROM skins;")
+async def command_getSkinPrices(ctx):
     sum = 0
     skins_value = []
-    for row in result:
-        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
-        price = response["lowest_price"]
-        price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
-        price_formated = float(price_int.replace(',','.'))
-        sum_price = round(price_formated*row[2], 2)
-        # print(row[1], "=>", price_formated, "zł", "|", price_formated*row[2],"zł")
-        skins_value.append(price_formated*row[2])
-        skin_row = urllib.parse.quote(row[1])
-        skin_url = "https://steamcommunity.com/market/listings/730/"+skin_row
-        img_url = requests.get(skin_url)
-        soup = BeautifulSoup(img_url.text, 'html.parser')
-        for item in soup.select('.market_listing_largeimage'):
-            skin_thumbnail = item.find('img').attrs['src']
+    for name, skin_url, skin_thumbnail, quantity, price_formated, sum_price in skins.getSkinPrices():
+        skins_value.append(price_formated*quantity)
         embed = discord.Embed(
-            title = row[1],
+            title = name,
             colour = discord.Colour.blue(),
             url = skin_url
         )
         embed.set_thumbnail(url=str(skin_thumbnail))
-        embed.add_field(name = "Ilość", value=row[2], inline = False)
+        embed.add_field(name = "Ilość", value=quantity, inline = False)
         embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
         embed.add_field(name = "Cena", value=str(sum_price)+" zł", inline = True)
         # embed.add_field(name = "Cena netto", value=str(sum_price*0,8698)+" zł", inline = True)
         await ctx.send(embed=embed)
-
     for i in range(0,len(skins_value)):
         sum = round(sum + skins_value[i], 2)
     embedSumPrice = discord.Embed(
@@ -129,38 +122,24 @@ async def getSkinPrices(ctx):
         description= "Całkowita wartość skinów"
     )
     await ctx.send(embed=embedSumPrice)
-
+    
 @bot.command(name="cases")
-async def getCasePrices(ctx):
-    result = conn.execute("SELECT * FROM cases;")
+async def command_getCasePrices(ctx):
     sum = 0
     cases_value = []
-    for row in result:
-        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
-        price = response["lowest_price"]
-        price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
-        price_formated = float(price_int.replace(',','.'))
-        sum_price = round(price_formated*row[2], 2)
-        # print(row[1],"=>", price_formated, "zł", "|", round(price_formated*row[2], 2), "zł")
-        cases_value.append(price_formated*row[2])
-        case_row = urllib.parse.quote(row[1])
-        case_url = "https://steamcommunity.com/market/listings/730/"+case_row
-        img_url = requests.get(case_url)
-        soup = BeautifulSoup(img_url.text, 'html.parser')
-        for item in soup.select('.market_listing_largeimage'):
-            case_thumbnail = item.find('img').attrs['src']
+    for name, case_url, case_thumbnail, quantity, price_formated, sum_price in cases.getCasePrices():
+        cases_value.append(price_formated*quantity)
         embed = discord.Embed(
-            title = row[1],
+            title = name,
             colour = discord.Colour.blue(),
             url = case_url
         )
         embed.set_thumbnail(url=str(case_thumbnail))
-        embed.add_field(name = "Ilość", value=row[2], inline = False)
+        embed.add_field(name = "Ilość", value=quantity, inline = False)
         embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
         embed.add_field(name = "Cena", value=str(sum_price)+" zł", inline = True)
         # embed.add_field(name = "Cena netto", value=str(sum_price*0,8698)+" zł", inline = True)
         await ctx.send(embed=embed)
-
     for i in range(0,len(cases_value)):
         sum = round(sum + cases_value[i], 2)
     embedSumPrice = discord.Embed(
