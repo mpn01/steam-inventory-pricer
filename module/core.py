@@ -9,6 +9,7 @@ import asyncio
 from commands import skins
 from commands import cases
 from commands import addskin
+from commands import addcase
 from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -32,43 +33,29 @@ async def command_addSkinToInventory(ctx, skinurl : str, quantity : int):
             await ctx.send(embed=embed)
         elif fetched_result == 1:
             embed = discord.Embed(
-                title = "Added "+str(quantity)+" more skin/s",
+                title = "Added "+str(quantity)+" more skin(s)",
                 colour = discord.Colour.green(),
                 description = skinname
             )
             await ctx.send(embed=embed)
 
 @bot.command(name="addcase")
-async def addCaseToInventory(ctx, caseurl : str, quantity : int):
-    caseurl_unquoted = urllib.parse.unquote(caseurl)
-    caseurl_unparsed = urllib.parse.urlparse(caseurl_unquoted)
-    casename = caseurl_unparsed.path.lstrip("/market/listings/730/")
-    data = [casename]
-    result = conn.execute("SELECT EXISTS(SELECT quantity FROM cases WHERE name=?);", data)
-    fetched_result = result.fetchone()[0]
-    if fetched_result == 0:
-        casedata = [casename, quantity]
-        conn.execute("INSERT INTO cases(name, quantity) values(?,?);", casedata)
-        conn.commit()
-        embed = discord.Embed(
-            title = "Case added",
-            colour = discord.Colour.green(),
-            description = casename
-        )
-        await ctx.send(embed=embed)
-    elif fetched_result == 1:
-        result_quantity = conn.execute("SELECT quantity FROM cases WHERE name=?", data)
-        for x in result_quantity:
-            quantity_increased = int(quantity) + int(x[0])
-            casedata = [quantity_increased, casename]
-            conn.execute("UPDATE cases SET quantity=? WHERE name=?;", casedata)
-            conn.commit()
+async def command_addCaseToInventory(ctx, caseurl : str, quantity : int):
+    for fetched_result, casename in addcase.addCaseToInventory(caseurl, quantity):
+        if fetched_result == 0:
             embed = discord.Embed(
-                title = "Added "+str(quantity)+" more cases",
+                title = "Case added",
                 colour = discord.Colour.green(),
                 description = casename
             )
             await ctx.send(embed=embed)
+        elif fetched_result == 1:
+                embed = discord.Embed(
+                    title = "Added "+str(quantity)+" more case(s)",
+                    colour = discord.Colour.green(),
+                    description = casename
+                )
+                await ctx.send(embed=embed)
 
 @bot.command(name="removeskin")
 async def removeSkinFromInventory(ctx, skinname : str):
