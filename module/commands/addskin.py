@@ -20,7 +20,7 @@ def addSkinToInventory(skinurl : str, quantity : int):
         for x in result_quantity:
             quantity_increased = int(quantity) + int(x[0])
             skindata = [quantity_increased, skinname]
-            conn.execute("UPDATE cases SET quantity=? WHERE name=?;", skindata)
+            conn.execute("UPDATE skins SET quantity=? WHERE name=?;", skindata)
             conn.commit()
-            return fetched_result, skinname
+            yield fetched_result, skinname
     

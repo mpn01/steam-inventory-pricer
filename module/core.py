@@ -8,7 +8,6 @@ import datetime
 import asyncio
 from commands import skins
 from commands import cases
-from commands import addcase
 from commands import addskin
 from discord import Intents
 from discord.ext import commands
@@ -23,7 +22,7 @@ DISCORD_KEY=os.getenv('DISCORD')
 # ---BOT commands---
 @bot.command(name="addskin")
 async def command_addSkinToInventory(ctx, skinurl : str, quantity : int):
-    for fetched_result, skinname in addskin.addCaseToInventory(skinurl, quantity):
+    for fetched_result, skinname in addskin.addSkinToInventory(skinurl, quantity):
         if fetched_result == 0:
             embed = discord.Embed(
                 title = "Skin added",
@@ -33,7 +32,7 @@ async def command_addSkinToInventory(ctx, skinurl : str, quantity : int):
             await ctx.send(embed=embed)
         elif fetched_result == 1:
             embed = discord.Embed(
-                title = "Added "+str(quantity)+" more cases",
+                title = "Added "+str(quantity)+" more skin/s",
                 colour = discord.Colour.green(),
                 description = skinname
             )
