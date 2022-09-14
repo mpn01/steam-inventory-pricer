@@ -14,7 +14,7 @@ There are six commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removes
 
 ## 🛑 Limitations
 
-This version of Steam API is limited to few API calls. This may stop program in the middle. Also, if you call API a lot in a short time you will be banned by Valve for a few minutes.
+This version of Steam API is limited to 8 API calls. This may stop program in the middle. Also, if you call API a lot in a short time you will be banned by Valve for a few minutes.
 
 ## 📚 Libraries used in this project
 
