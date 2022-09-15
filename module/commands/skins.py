@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 def getSkinPrices():
     conn = sqlite3.connect('steaminventory.db')
     result = conn.execute("SELECT * FROM skins;")
-    
+
     for row in result:
         response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
         price = response["lowest_price"]
@@ -21,6 +21,5 @@ def getSkinPrices():
         soup = BeautifulSoup(img_url.text, 'html.parser')
         for item in soup.select('.market_listing_largeimage'):
             skin_thumbnail = item.find('img').attrs['src']
-        
+
         yield row[1], skin_url, skin_thumbnail, row[2], price_formated, sum_price
-    

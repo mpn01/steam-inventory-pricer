@@ -23,4 +23,3 @@ def addSkinToInventory(skinurl : str, quantity : int):
             conn.execute("UPDATE skins SET quantity=? WHERE name=?;", skindata)
             conn.commit()
             yield fetched_result, skinname
-    

@@ -1,8 +1,7 @@
 import requests
 import re
 import sqlite3
-import urllib.parse
-import discord 
+import discord
 import os
 import datetime
 import asyncio
@@ -108,7 +107,7 @@ async def command_getSkinPrices(ctx):
         description= "Całkowita wartość skinów"
     )
     await ctx.send(embed=embedSumPrice)
-    
+
 @bot.command(name="cases")
 async def command_getCasePrices(ctx):
     sum = 0
@@ -195,4 +194,4 @@ async def on_ready():
 
 if __name__ == "__main__":
     conn = sqlite3.connect('steaminventory.db')
-    bot.run(DISCORD_KEY)    
+    bot.run(DISCORD_KEY)

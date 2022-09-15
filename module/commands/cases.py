@@ -21,5 +21,5 @@ def getCasePrices():
         soup = BeautifulSoup(img_url.text, 'html.parser')
         for item in soup.select('.market_listing_largeimage'):
             case_thumbnail = item.find('img').attrs['src']
-        
+
         yield row[1], case_url, case_thumbnail, row[2], price_formated, sum_price
