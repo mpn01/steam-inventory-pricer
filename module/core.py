@@ -1,10 +1,6 @@
-import requests
-import re
 import sqlite3
 import discord
 import os
-import datetime
-import asyncio
 from commands import skins
 from commands import cases
 from commands import addskin
@@ -13,13 +9,11 @@ from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 bot = commands.Bot(command_prefix=".", intents=Intents.all())
 DISCORD_KEY=os.getenv('DISCORD')
 
-# ---BOT commands---
 @bot.command(name="addskin")
 async def command_addSkinToInventory(ctx, skinurl : str, quantity : int):
     for fetched_result, skinname in addskin.addSkinToInventory(skinurl, quantity):
@@ -134,63 +128,9 @@ async def command_getCasePrices(ctx):
     )
     await ctx.send(embed=embedSumPrice)
 
-# ---Scheduled functions---
-def scheduledGetCasePrices():
-    result = conn.execute("SELECT * FROM cases;")
-    cases_price_sum = 0
-    cases_value = []
-    for row in result:
-        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
-        price = response["lowest_price"]
-        price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
-        price_formated = float(price_int.replace(',','.'))
-        cases_value.append(price_formated*row[2])
-    for i in range(0,len(cases_value)):
-        cases_price_sum = round(cases_price_sum + cases_value[i], 2)
-    return cases_price_sum
-
-def scheduledGetSkinPrices():
-    result = conn.execute("SELECT * FROM skins;")
-    skins_price_sum = 0
-    skins_value = []
-    for row in result:
-        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
-        price = response["lowest_price"]
-        price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
-        price_formated = float(price_int.replace(',','.'))
-        skins_value.append(price_formated*row[2])
-    for i in range(0,len(skins_value)):
-        skins_price_sum = round(skins_price_sum + skins_value[i], 2)
-    return skins_price_sum
-
-# every day at 10 AM send message with price of whole inventory
-async def getPrices():
-    while True:
-        now = datetime.datetime.now()
-        then = now+datetime.timedelta(days=1)
-        then.replace(hour=10, minute=00)
-        waittime = (then-now).total_seconds()
-        await asyncio.sleep(waittime)
-
-        channel = bot.get_channel(1017927811467591741)
-        cases_price_sum = scheduledGetCasePrices()
-        datetime.sleep(15)
-        skins_price_sum = scheduledGetSkinPrices()
-        sum_prices = float(round(skins_price_sum, 2))+float(round(cases_price_sum, 2))
-        print(sum_prices)
-        embed = discord.Embed(
-            title = str(sum_prices)+" zł",
-            colour = discord.Colour.yellow(),
-            description= "Całkowita wartość ekwipunku"
-        )
-        embed.add_field(name = "W skinach", value=str(skins_price_sum)+" zł", inline = True)
-        embed.add_field(name = "W skrzynkach", value=str(cases_price_sum)+" zł", inline = True)
-        await channel.send(embed=embed)
-
 @bot.event
 async def on_ready():
     print("Listening for commands...")
-    await getPrices()
 
 if __name__ == "__main__":
     conn = sqlite3.connect('steaminventory.db')
