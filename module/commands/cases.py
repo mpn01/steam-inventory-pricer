@@ -9,7 +9,8 @@ def getCasePrices():
     result = conn.execute("SELECT * FROM cases;")
 
     for row in result:
-        response = requests.get("http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name="+row[1]).json()
+        casename = row[1]
+        response = requests.get(f"http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name={casename}").json()
         price = response["lowest_price"]
         price_int = re.sub('[^\d+,\d{0,2}$]', '', price)
         price_formated = float(price_int.replace(',','.'))
