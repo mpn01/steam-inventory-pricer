@@ -1,16 +1,18 @@
 # <p align="center"> 💰 Steam Inventory Pricer </p>
 
 ## 📖 Description
-A program written in Python to monitor your prices of your CS:GO items. This program is working as an Discord BOT.
+A program written in Python to monitor your prices of your CS:GO items. This program is working as an Discord BOT. 
 
 ## 💻 Usage
-To use this program you need to create SQLite database and complete it with your CS:GO items. For now, it's the only way it works. You can use script called `create_db.py`. Then you need to configure your Discord BOT. Simply, just make an .env file and insert your BOT token there, it should look like this:
+To use this program you need to create SQLite database and complete it with your CS:GO items. For now, it's the only way it works. You can use script called `create_db.py` to create it automatically. Then you need to configure your Discord BOT. Simply, just make an .env file and insert your BOT token there, it should look like this:
 
 ```env
 DISCORD=y0u4t0k3n
 ```
 
-There are six commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase`. First two commands displays every item from inventory. The rest are just operations on database to add/remove items. There is also daily message at 10 AM which displays current value of your inventory.
+Then you can run this script by typing `python module/core.py` in a console. 
+
+There are six commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase`. First two commands displays every item from inventory. The rest are just operations on database to add/remove items. There will be daily message at 10 AM which displays current value of your inventory.
 
 ## 🛑 Limitations
 
@@ -33,8 +35,7 @@ asyncio
 
 ## 📜 Todo
 
-- [ ] Add daily message about price
+- [ ] Daily message about inventory value
 - [ ] Rewrite API calls to diffrent API
-- [ ] Fetch items from Steam Inventory to avoid adding them manually
+- [ ] Fetch items from Steam Inventory to database
 
-## ©️ Credits
