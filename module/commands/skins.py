@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 def getSkinPrices():
     conn = sqlite3.connect('steaminventory.db')
-    result = conn.execute("SELECT * FROM skins;")
+    result = conn.execute("SELECT * FROM skins WHERE status='tracked';")
 
     for row in result:
         skinname = row[1]
