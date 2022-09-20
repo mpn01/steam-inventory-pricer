@@ -92,7 +92,7 @@ async def removeCaseFromInventory(ctx, casename : str):
 
 @bot.command(name="skins")
 async def getSkinPrices(ctx):
-    result = conn.execute("SELECT * FROM skins;")
+    result = conn.execute("SELECT * FROM skins WHERE status='tracked';")
     sum = 0
     skins_value = []
     for row in result:
@@ -132,7 +132,7 @@ async def getSkinPrices(ctx):
 
 @bot.command(name="cases")
 async def getCasePrices(ctx):
-    result = conn.execute("SELECT * FROM cases;")
+    result = conn.execute("SELECT * FROM cases WHERE status='tracked';")
     sum = 0
     cases_value = []
     for row in result:
