@@ -80,7 +80,7 @@ async def removeCaseFromInventory(ctx, casename : str):
 async def command_getSkinPrices(ctx):
     sum = 0
     skins_value = []
-    for name, skin_url, skin_thumbnail, quantity, price_formated, sum_price in skins.getSkinPrices():
+    for name, skin_url, skin_thumbnail, quantity, price_formated, sum_price in skins.getSkinPrices(all_skins=True, input=None):
         skins_value.append(price_formated*quantity)
         embed = discord.Embed(
             title = name,
