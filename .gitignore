@@ -1,5 +1,5 @@
 module/.env
-module/steaminventory.db
+steaminventory.db
 .vscode/
 module/test.py
 __pycache__/

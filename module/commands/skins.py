@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 def getSkinPrices(all_skins, input):
     conn = sqlite3.connect('steaminventory.db')
-    
+
     if all_skins == True:
         result = conn.execute("SELECT * FROM skins WHERE status='tracked';")
         for row in result:
@@ -25,7 +25,7 @@ def getSkinPrices(all_skins, input):
                 skin_thumbnail = item.find('img').attrs['src']
 
             yield row[1], skin_url, skin_thumbnail, row[2], price_formated, sum_price
-    else:
+    if all_skins == False:
         result = conn.execute(f"SELECT * FROM skins WHERE name LIKE '%{input}%';")
         for row in result:
             skin_name = row[1]
