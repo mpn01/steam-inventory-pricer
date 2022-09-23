@@ -29,6 +29,7 @@ def getSkinPrices(all_skins, input):
         result = conn.execute(f"SELECT * FROM skins WHERE name LIKE '%{input}%';")
         for row in result:
             skin_name = row[1]
+            skin_quantity = row[2]
             skin_status = row[3]
             skin_cost = row[4]
             skin_origin = row[5]
@@ -44,4 +45,4 @@ def getSkinPrices(all_skins, input):
             for item in soup.select('.market_listing_largeimage'):
                 skin_thumbnail = item.find('img').attrs['src']
 
-            yield skin_name, skin_status, skin_cost, skin_origin
+            yield skin_name, skin_status, skin_cost, skin_origin, skin_url, skin_thumbnail, price_formated, sum_price, skin_quantity
