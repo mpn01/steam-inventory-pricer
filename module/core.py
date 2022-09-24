@@ -79,71 +79,90 @@ async def removeCaseFromInventory(ctx, casename : str):
 @bot.command(name="skins")
 async def command_getSkinPrices(ctx, user_input=None):
     if user_input == None:
+        sql_query = "SELECT * FROM skins WHERE status='tracked';"
         sum = 0
         skins_value = []
-        for name, skin_url, skin_thumbnail, quantity, price_formated, sum_price in skins.getSkinPrices(all_skins=True, input=None):
-            net_price = round(sum_price*0.8698, 2)
-            skins_value.append(price_formated*quantity)
+        for skin_name, skin_quantity, skin_url, skin_thumbnail, skin_formated_price, skin_sum_price in skins.getSkins(all_skins=True, query=sql_query):
+            skin_net_price = round(skin_sum_price*0.8698, 2)
+            skins_value.append(skin_formated_price*skin_quantity)
             embed = discord.Embed(
-                title = name,
+                title = skin_name,
                 colour = discord.Colour.blue(),
                 url = skin_url
             )
-            embed.set_thumbnail(url=str(skin_thumbnail))
-            embed.add_field(name = "Ilość", value=quantity, inline = False)
-            embed.add_field(name = "Cena 1 szt.", value=f"{price_formated} zł", inline = True)
-            embed.add_field(name = "Cena", value=f"{sum_price} zł", inline = True)
-            embed.add_field(name = "Cena netto", value=f"{net_price} zł", inline = True)
-            await ctx.send(embed=embed)
+            embed.set_thumbnail(url = str(skin_thumbnail))
+            embed.add_field(name = "Ilość", value = skin_quantity, inline = False)
+            embed.add_field(name = "Cena 1 szt.", value = f"{skin_formated_price} zł", inline = True)
+            embed.add_field(name = "Cena", value = f"{skin_sum_price} zł", inline = True)
+            embed.add_field(name = "Cena netto", value = f"{skin_net_price} zł", inline = True)
+            await ctx.send(embed = embed)
         for i in range(0,len(skins_value)):
             sum = round(sum + skins_value[i], 2)
         embedSumPrice = discord.Embed(
             title = str(sum)+" zł",
             colour = discord.Colour.green(),
-            description= "Całkowita wartość skinów"
+            description = "Całkowita wartość skinów"
         )
         await ctx.send(embed=embedSumPrice)
     else:
-        for name, status, cost, origin, url, thumbnail, price, sum_price, quantity in skins.getSkinPrices(all_skins=False, input=user_input):
+        sql_query = f"SELECT * FROM skins WHERE name LIKE '%{user_input}%';"
+        for skin_name, skin_status, skin_cost, skin_origin, skin_url, skin_formated_price, skin_sum_price, skin_thumbnail, skin_quantity in skins.getSkins(all_skins=False, query=sql_query):
             embed = discord.Embed(
-                title = name,
+                title = skin_name,
                 colour = discord.Colour.blue(),
-                url = url
+                url = skin_url
             )
-            embed.set_thumbnail(url=str(thumbnail))
-            embed.add_field(name = "Ilość", value = quantity, inline = False)
-            embed.add_field(name = "Cena 1 szt.", value = f"{price} zł", inline = True)
-            embed.add_field(name = "Wartość", value = f"{sum_price} zł", inline = True)
-            embed.add_field(name = "Kupiono za", value = f"{cost} zł", inline = True)
-            embed.add_field(name = "Pochodzenie", value = f"{origin}", inline = True)
-            embed.add_field(name = "Status", value = status, inline = True)
+            embed.set_thumbnail(url=str(skin_thumbnail))
+            embed.add_field(name = "Ilość", value = skin_quantity, inline = False)
+            embed.add_field(name = "Cena 1 szt.", value = f"{skin_formated_price} zł", inline = True)
+            embed.add_field(name = "Wartość", value = f"{skin_sum_price} zł", inline = True)
+            embed.add_field(name = "Kupiono za", value = f"{skin_cost} zł", inline = True)
+            embed.add_field(name = "Pochodzenie", value = f"{skin_origin}", inline = True)
+            embed.add_field(name = "Status", value = skin_status, inline = True)
             await ctx.send(embed = embed)
 
 @bot.command(name="cases")
-async def command_getCasePrices(ctx):
-    sum = 0
-    cases_value = []
-    for name, case_url, case_thumbnail, quantity, price_formated, sum_price in cases.getCasePrices():
-        cases_value.append(price_formated*quantity)
-        embed = discord.Embed(
-            title = name,
-            colour = discord.Colour.blue(),
-            url = case_url
+async def command_getCasePrices(ctx, user_input=None):
+    if user_input == None:
+        sql_query = "SELECT * FROM cases WHERE status = 'tracked';"
+        sum = 0
+        cases_value = []
+        for case_name, case_quantity, case_url, case_thumbnail, case_formated_price, case_sum_price in cases.getCases(all_cases=True, query=sql_query):
+            cases_value.append(case_formated_price*case_quantity)
+            embed = discord.Embed(
+                title = case_name,
+                colour = discord.Colour.blue(),
+                url = case_url
+            )
+            embed.set_thumbnail(url = str(case_thumbnail))
+            embed.add_field(name = "Ilość", value = case_quantity, inline = False)
+            embed.add_field(name = "Cena 1 szt.", value = str (case_formated_price)+" zł", inline = True)
+            embed.add_field(name = "Cena", value=str(case_sum_price)+" zł", inline = True)
+            # embed.add_field(name = "Cena netto", value=str(sum_price*0,8698)+" zł", inline = True)
+            await ctx.send(embed=embed)
+        for i in range(0,len(cases_value)):
+            sum = round(sum + cases_value[i], 2)
+        embedSumPrice = discord.Embed(
+            title = str(sum)+" zł",
+            colour = discord.Colour.green(),
+            description= "Całkowita wartość skrzynek"
         )
-        embed.set_thumbnail(url=str(case_thumbnail))
-        embed.add_field(name = "Ilość", value=quantity, inline = False)
-        embed.add_field(name = "Cena 1 szt.", value=str(price_formated)+" zł", inline = True)
-        embed.add_field(name = "Cena", value=str(sum_price)+" zł", inline = True)
-        # embed.add_field(name = "Cena netto", value=str(sum_price*0,8698)+" zł", inline = True)
-        await ctx.send(embed=embed)
-    for i in range(0,len(cases_value)):
-        sum = round(sum + cases_value[i], 2)
-    embedSumPrice = discord.Embed(
-        title = str(sum)+" zł",
-        colour = discord.Colour.green(),
-        description= "Całkowita wartość skrzynek"
-    )
-    await ctx.send(embed=embedSumPrice)
+        await ctx.send(embed=embedSumPrice)
+    else:
+        sql_query = f"SELECT * FROM cases WHERE name LIKE '%{user_input}%';"
+        for case_name, case_quantity, case_status, case_url, case_formated_price, case_sum_price, case_thumbnail in cases.getCases(all_cases=False, query=sql_query):
+            embed = discord.Embed(
+                title = case_name,
+                colour = discord.Colour.blue(),
+                url = case_url
+            )
+            embed.set_thumbnail(url=str(case_thumbnail))
+            embed.add_field(name = "Ilość", value = case_quantity, inline = False)
+            embed.add_field(name = "Cena 1 szt.", value = f"{case_formated_price} zł", inline = True)
+            embed.add_field(name = "Wartość", value = f"{case_sum_price} zł", inline = True)
+            embed.add_field(name = "Status", value = case_status, inline = True)
+            await ctx.send(embed = embed)
+
 
 @bot.event
 async def on_ready():
