@@ -5,6 +5,8 @@ from commands import skins
 from commands import cases
 from commands import addskin
 from commands import addcase
+from commands import trackcase
+from commands import untrackcase
 from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -82,8 +84,7 @@ async def command_getSkinPrices(ctx, user_input=None):
         sql_query = "SELECT * FROM skins WHERE status='tracked';"
         sum = 0
         skins_value = []
-        for skin_name, skin_quantity, skin_url, skin_thumbnail, skin_formated_price, skin_sum_price in skins.getSkins(all_skins=True, query=sql_query):
-            skin_net_price = round(skin_sum_price*0.8698, 2)
+        for skin_name, skin_quantity, skin_url, skin_thumbnail, skin_formated_price, skin_sum_price, skin_net_price in skins.getSkins(all_skins=True, query=sql_query):
             skins_value.append(skin_formated_price*skin_quantity)
             embed = discord.Embed(
                 title = skin_name,
@@ -163,6 +164,25 @@ async def command_getCasePrices(ctx, user_input=None):
             embed.add_field(name = "Status", value = case_status, inline = True)
             await ctx.send(embed = embed)
 
+@bot.command(name="trackcase")
+async def command_trackCase(ctx, user_input):
+    case_name = trackcase.setCaseTracked(user_input)
+    embed = discord.Embed(
+        title = "Skrzynia oznaczona jako śledzona",
+        colour = discord.Colour.yellow(),
+        description = case_name
+    )
+    await ctx.send(embed=embed)
+
+@bot.command(name="untrackcase")
+async def command_trackCase(ctx, user_input):
+    case_name = untrackcase.setCaseUntracked(user_input)
+    embed = discord.Embed(
+        title = "Przestano śledzić skrzynię",
+        colour = discord.Colour.yellow(),
+        description = case_name
+    )
+    await ctx.send(embed=embed)
 
 @bot.event
 async def on_ready():
