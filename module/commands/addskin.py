@@ -14,6 +14,7 @@ def addSkinToInventory(skinurl : str, quantity : int):
         skindata = [skinname, quantity]
         conn.execute("INSERT INTO skins(name, quantity) values(?,?);", skindata)
         conn.commit()
+
         yield fetched_result, skinname
     elif fetched_result == 1:
         result_quantity = conn.execute("SELECT quantity FROM skins WHERE name=?", data)

@@ -19,7 +19,7 @@ def getCases(all_cases, query):
         for item in soup.select('.market_listing_largeimage'):
             case_thumbnail = item.find('img').attrs['src']
 
-        response = requests.get(f"http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name={case_name}").json()
+        response = requests.get(f"http://steamcommunity.com/market/priceoverview/?appid=730&currency=6&market_hash_name={case_quoted}").json()
         case_current_price = response["lowest_price"]
         case_int_price = re.sub('[^\d+,\d{0,2}$]', '', case_current_price)
         case_formated_price = float(case_int_price.replace(',','.'))

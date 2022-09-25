@@ -3,3 +3,4 @@ steaminventory.db
 .vscode/
 module/test.py
 __pycache__/
+test.py
