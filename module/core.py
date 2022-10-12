@@ -52,33 +52,39 @@ async def command_addCaseToInventory(ctx, caseurl : str, quantity : int):
                 await ctx.send(embed=embed)
 
 @bot.command(name="removeskin")
-async def removeSkinFromInventory(ctx, skinname : str):
-    sql = "DELETE FROM skins WHERE name = ?;"
-    data = [skinname];
-    conn.execute(sql, data)
+async def removeSkinFromInventory(ctx, *, user_input : str):
+    sql_select_skin = f"SELECT name FROM skins WHERE name LIKE '%{user_input}%';"
+    result = conn.execute(sql_select_skin)
+    for row in result:
+        skin_name = row[0]
+    sql_delete_skin = f"DELETE FROM skins WHERE name='{skin_name}';"
+    conn.execute(sql_delete_skin)
     conn.commit()
     embed = discord.Embed(
         title = "Skin removed",
-        description= skinname,
+        description= skin_name,
         colour = discord.Colour.red()
     )
     await ctx.send(embed=embed)
 
 @bot.command(name="removecase")
-async def removeCaseFromInventory(ctx, casename : str):
-    sql_cases = "DELETE FROM cases WHERE name = ?;"
-    data = [casename];
-    conn.execute(sql_cases, data)
+async def removeCaseFromInventory(ctx, *, user_input : str):
+    sql_select_case = f"SELECT name FROM cases WHERE name LIKE '%{user_input}%';"
+    result = conn.execute(sql_select_case)
+    for row in result:
+        case_name = row[0]
+    sql_delete_case = f"DELETE FROM cases WHERE name='{case_name}';"
+    conn.execute(sql_delete_case)
     conn.commit()
     embed = discord.Embed(
         title = "Case removed",
-        description= casename,
+        description= case_name,
         colour = discord.Colour.red()
     )
     await ctx.send(embed=embed)
 
 @bot.command(name="skins")
-async def command_getSkinPrices(ctx, user_input=None):
+async def command_getSkinPrices(ctx, *, user_input=None):
     if user_input == None:
         sql_query = "SELECT * FROM skins WHERE status='tracked';"
         sum = 0
@@ -122,7 +128,7 @@ async def command_getSkinPrices(ctx, user_input=None):
             await ctx.send(embed = embed)
 
 @bot.command(name="cases")
-async def command_getCasePrices(ctx, user_input=None):
+async def command_getCasePrices(ctx, *, user_input=None):
     if user_input == None:
         sql_query = "SELECT * FROM cases WHERE status = 'tracked';"
         sum = 0
@@ -164,7 +170,7 @@ async def command_getCasePrices(ctx, user_input=None):
             await ctx.send(embed = embed)
 
 @bot.command(name="trackcase")
-async def command_trackCase(ctx, user_input):
+async def command_trackCase(ctx, *, user_input):
     case_name = track.changeStatus(user_input, "cases", "tracked")
     embed = discord.Embed(
         title = "Skrzynia oznaczona jako śledzona",
@@ -174,7 +180,7 @@ async def command_trackCase(ctx, user_input):
     await ctx.send(embed=embed)
 
 @bot.command(name="untrackcase")
-async def command_trackCase(ctx, user_input):
+async def command_trackCase(ctx, *, user_input):
     case_name = track.changeStatus(user_input, "cases", "untracked")
     embed = discord.Embed(
         title = "Przestano śledzić skrzynię",
@@ -184,7 +190,7 @@ async def command_trackCase(ctx, user_input):
     await ctx.send(embed=embed)
 
 @bot.command(name="trackskin")
-async def command_trackCase(ctx, user_input):
+async def command_trackCase(ctx, *, user_input):
     skin_name = track.changeStatus(user_input, "skins", "tracked")
     embed = discord.Embed(
         title = "Skin oznaczony jako śledzony",
@@ -194,7 +200,7 @@ async def command_trackCase(ctx, user_input):
     await ctx.send(embed=embed)
 
 @bot.command(name="untrackskin")
-async def command_trackCase(ctx, user_input):
+async def command_trackCase(ctx, *, user_input):
     skin_name = track.changeStatus(user_input, "skins", "untracked")
     embed = discord.Embed(
         title = "Przestano śledzić skina",
