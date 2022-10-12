@@ -43,7 +43,7 @@ Using commands:
 ```python
 .untrackskin <item-name>
 # Example
-.trackcase Bright Water
+.untrackskin Bright Water
 ```
 
 ## 🛑 Limitations
