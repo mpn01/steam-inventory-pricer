@@ -5,8 +5,7 @@ from commands import skins
 from commands import cases
 from commands import addskin
 from commands import addcase
-from commands import trackcase
-from commands import untrackcase
+from commands import track
 from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -166,7 +165,7 @@ async def command_getCasePrices(ctx, user_input=None):
 
 @bot.command(name="trackcase")
 async def command_trackCase(ctx, user_input):
-    case_name = trackcase.setCaseTracked(user_input)
+    case_name = track.changeStatus(user_input, "cases", "tracked")
     embed = discord.Embed(
         title = "Skrzynia oznaczona jako śledzona",
         colour = discord.Colour.yellow(),
@@ -176,11 +175,31 @@ async def command_trackCase(ctx, user_input):
 
 @bot.command(name="untrackcase")
 async def command_trackCase(ctx, user_input):
-    case_name = untrackcase.setCaseUntracked(user_input)
+    case_name = track.changeStatus(user_input, "cases", "untracked")
     embed = discord.Embed(
         title = "Przestano śledzić skrzynię",
         colour = discord.Colour.yellow(),
         description = case_name
+    )
+    await ctx.send(embed=embed)
+
+@bot.command(name="trackskin")
+async def command_trackCase(ctx, user_input):
+    skin_name = track.changeStatus(user_input, "skins", "tracked")
+    embed = discord.Embed(
+        title = "Skin oznaczony jako śledzony",
+        colour = discord.Colour.yellow(),
+        description = skin_name
+    )
+    await ctx.send(embed=embed)
+
+@bot.command(name="untrackskin")
+async def command_trackCase(ctx, user_input):
+    skin_name = track.changeStatus(user_input, "skins", "untracked")
+    embed = discord.Embed(
+        title = "Przestano śledzić skina",
+        colour = discord.Colour.yellow(),
+        description = skin_name
     )
     await ctx.send(embed=embed)
 
