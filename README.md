@@ -10,9 +10,9 @@ To use this program you need to create SQLite database and complete it with your
 DISCORD=y0u4t0k3n
 ```
 
-Then you can run this script by typing `python module/core.py` in a console.
+Then you can run this script by running `python module/core.py` in a console.
 
-There are six commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase`. First two commands are displaying every item from inventory. The rest are just operations on database to add/remove items. There will also be daily message which displays current value of your inventory.
+There are ten commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase` `.trackskin` `.trackcase` `.untrackskin` `.untrackcase`. First two commands are displaying every item from inventory. The rest are just operations on database to add/remove items. There will also be daily message which displays current value of your inventory.
 
 Using commadns:
 ```python
@@ -24,6 +24,11 @@ Using commadns:
 .removeskin <item-name> <quantity>
 # Example
 .removeskin StatTrak™ P250 | Cassette (Factory New) 1
+```
+```python
+.trackcase <item-name>*
+# Example
+.trackcase Prisma 2 Case
 ```
 
 ## 🛑 Limitations
