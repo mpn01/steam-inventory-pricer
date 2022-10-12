@@ -12,23 +12,38 @@ DISCORD=y0u4t0k3n
 
 Then you can run this script by running `python module/core.py` in a console.
 
-There are ten commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase` `.trackskin` `.trackcase` `.untrackskin` `.untrackcase`. First two commands are displaying every item from inventory. The rest are just operations on database to add/remove items. There will also be daily message which displays current value of your inventory.
+There are ten commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase` `.trackskin` `.trackcase` `.untrackskin` and `.untrackcase`. First two commands are displaying every item from inventory. The rest are just operations on database to add/remove items and track/untrack items in daily message which displays current value of your inventory.
 
-Using commadns:
+Using commands:
+#### Displaying info about one item (current price, bought price, item origin and status)
+```python
+.skins <skin-name>
+# Example
+.skins Red Laminate
+```
+#### Adding item(s) to database
 ```python
 .addcase <steam-url-to-skin> <quantity>
 # Example
 .addcase https://steamcommunity.com/market/listings/730/StatTrak%E2%84%A2%20P250%20|%20Cassette%20(Factory%20New) 1
 ```
+#### Removing item(s) from database
 ```python
-.removeskin <item-name> <quantity>
+.removeskin <item-name>
 # Example
-.removeskin StatTrak™ P250 | Cassette (Factory New) 1
+.removeskin P250 Cassette
 ```
+#### Tracking item in daily message
 ```python
-.trackcase <item-name>*
+.trackcase <item-name>
 # Example
 .trackcase Prisma 2 Case
+```
+#### Untracking item in daily message
+```python
+.untrackskin <item-name>
+# Example
+.trackcase Bright Water
 ```
 
 ## 🛑 Limitations
