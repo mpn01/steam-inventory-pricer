@@ -1,6 +1,9 @@
 import sqlite3
+from time import time
 import discord
 import os
+import datetime
+import sys
 from commands import skins
 from commands import cases
 from commands import addskin
@@ -17,6 +20,7 @@ DISCORD_KEY=os.getenv('DISCORD')
 
 @bot.command(name="addskin")
 async def command_addSkinToInventory(ctx, skinurl : str, quantity : int):
+    print(f"\033[0;90m{datetime.datetime.now()}\033[0;94m INFO \033[0;35m core.py \033[0;37m Issuing function {sys._getframe().f_code.co_name} with skinurl set to '{skinurl}'")
     for fetched_result, skinname in addskin.addSkinToInventory(skinurl, quantity):
         if fetched_result == 0:
             embed = discord.Embed(
@@ -35,6 +39,7 @@ async def command_addSkinToInventory(ctx, skinurl : str, quantity : int):
 
 @bot.command(name="addcase")
 async def command_addCaseToInventory(ctx, caseurl : str, quantity : int):
+    print(f"\033[0;90m{datetime.datetime.now()}\033[0;94m INFO \033[0;35m core.py \033[0;37m Issuing function {sys._getframe().f_code.co_name} with caseurl set to '{caseurl}'")
     for fetched_result, casename in addcase.addCaseToInventory(caseurl, quantity):
         if fetched_result == 0:
             embed = discord.Embed(
@@ -53,6 +58,7 @@ async def command_addCaseToInventory(ctx, caseurl : str, quantity : int):
 
 @bot.command(name="removeskin")
 async def removeSkinFromInventory(ctx, *, user_input : str):
+    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
     sql_select_skin = f"SELECT name FROM skins WHERE name LIKE '%{user_input}%';"
     result = conn.execute(sql_select_skin)
     for row in result:
@@ -69,6 +75,7 @@ async def removeSkinFromInventory(ctx, *, user_input : str):
 
 @bot.command(name="removecase")
 async def removeCaseFromInventory(ctx, *, user_input : str):
+    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
     sql_select_case = f"SELECT name FROM cases WHERE name LIKE '%{user_input}%';"
     result = conn.execute(sql_select_case)
     for row in result:
@@ -86,6 +93,7 @@ async def removeCaseFromInventory(ctx, *, user_input : str):
 @bot.command(name="skins")
 async def command_getSkinPrices(ctx, *, user_input=None):
     if user_input == None:
+        print(f"\033[0;90m{datetime.datetime.now()}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name}")
         sql_query = "SELECT * FROM skins WHERE status='tracked';"
         sum = 0
         skins_value = []
@@ -111,6 +119,7 @@ async def command_getSkinPrices(ctx, *, user_input=None):
         )
         await ctx.send(embed=embedSumPrice)
     else:
+        print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
         sql_query = f"SELECT * FROM skins WHERE name LIKE '%{user_input}%';"
         for skin_name, skin_status, skin_cost, skin_origin, skin_url, skin_formated_price, skin_sum_price, skin_thumbnail, skin_quantity in skins.getSkins(all_skins=False, query=sql_query):
             embed = discord.Embed(
@@ -130,6 +139,7 @@ async def command_getSkinPrices(ctx, *, user_input=None):
 @bot.command(name="cases")
 async def command_getCasePrices(ctx, *, user_input=None):
     if user_input == None:
+        print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep='')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name}")
         sql_query = "SELECT * FROM cases WHERE status = 'tracked';"
         sum = 0
         cases_value = []
@@ -155,6 +165,7 @@ async def command_getCasePrices(ctx, *, user_input=None):
         )
         await ctx.send(embed=embedSumPrice)
     else:
+        print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
         sql_query = f"SELECT * FROM cases WHERE name LIKE '%{user_input}%';"
         for case_name, case_quantity, case_status, case_url, case_formated_price, case_sum_price, case_thumbnail in cases.getCases(all_cases=False, query=sql_query):
             embed = discord.Embed(
@@ -171,6 +182,7 @@ async def command_getCasePrices(ctx, *, user_input=None):
 
 @bot.command(name="trackcase")
 async def command_trackCase(ctx, *, user_input):
+    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
     case_name = track.changeStatus(user_input, "cases", "tracked")
     embed = discord.Embed(
         title = "Skrzynia oznaczona jako śledzona",
@@ -181,6 +193,7 @@ async def command_trackCase(ctx, *, user_input):
 
 @bot.command(name="untrackcase")
 async def command_trackCase(ctx, *, user_input):
+    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
     case_name = track.changeStatus(user_input, "cases", "untracked")
     embed = discord.Embed(
         title = "Przestano śledzić skrzynię",
@@ -191,6 +204,7 @@ async def command_trackCase(ctx, *, user_input):
 
 @bot.command(name="trackskin")
 async def command_trackCase(ctx, *, user_input):
+    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
     skin_name = track.changeStatus(user_input, "skins", "tracked")
     embed = discord.Embed(
         title = "Skin oznaczony jako śledzony",
@@ -201,6 +215,7 @@ async def command_trackCase(ctx, *, user_input):
 
 @bot.command(name="untrackskin")
 async def command_trackCase(ctx, *, user_input):
+    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name} with user_input set to '{user_input}'")
     skin_name = track.changeStatus(user_input, "skins", "untracked")
     embed = discord.Embed(
         title = "Przestano śledzić skina",
@@ -211,7 +226,7 @@ async def command_trackCase(ctx, *, user_input):
 
 @bot.event
 async def on_ready():
-    print("Listening for commands...")
+    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Listening for commands...")
 
 if __name__ == "__main__":
     conn = sqlite3.connect('steaminventory.db')
