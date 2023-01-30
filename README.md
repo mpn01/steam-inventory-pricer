@@ -12,7 +12,7 @@ DISCORD=y0u4t0k3n
 
 Then you can run this script by running `python module/core.py` in a console.
 
-There are ten commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase` `.trackskin` `.trackcase` `.untrackskin` and `.untrackcase`. First two commands are displaying every item from inventory. The rest are just operations on database to add/remove items and track/untrack items in daily message which displays current value of your inventory.
+There are ten commands to use, `.skins` `.cases` `.addcase` `.addskin` `.removeskin` `.removecase` `.trackskin` `.trackcase` `.untrackskin` and `.untrackcase`. First two commands are displaying every tracked item from inventory. The rest are just operations on database to add/remove items and track/untrack items.
 
 Using commands:
 #### Displaying info about one item (current price, bought price, item origin and status)
@@ -48,7 +48,7 @@ Using commands:
 
 ## 🛑 Limitations
 
-This version of Steam API is limited to 8 API calls. This may stop program in the middle. Also, if you call API a lot in a short time you will be banned by Valve for a few minutes.
+I really don't know how the Steam API works. Sometimes you can do only 8 calls, sometimes more. I'm not seeing any pattern there.
 
 ## 📚 Libraries used in this project
 
@@ -62,13 +62,14 @@ discord.ext
 os
 dotenv
 datetime
-asyncio
+beautifulsoup4
 ```
 
 ## 📜 Todo
 
 - [ ] Daily message about inventory value
 - [ ] Rewrite API calls to diffrent API
-- [ ] Fetch items from Steam Inventory to database
-- [ ] Check one item with additional informations (price you paid, purchase date etc.)
+- [ ] Fetch items from Steam Inventory and store them in database
+- [ ] Add tags support for all items
+- [ ] Change commands syntax and prefix (probably to '/')
 
