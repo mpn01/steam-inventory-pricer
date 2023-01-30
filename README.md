@@ -1,5 +1,7 @@
 # <p align="center"> 💰 Steam Inventory Pricer </p>
 
+[bot teaser - skin.webm](https://user-images.githubusercontent.com/33598365/195581988-21c5bede-86f4-4563-b7e2-47d67c5ffbff.webm)
+
 ## 📖 Description
 A program written in Python to monitor your prices of your CS:GO items. This program is working as an Discord BOT.
 
