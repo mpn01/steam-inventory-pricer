@@ -140,9 +140,9 @@ DISCORD_KEY=os.getenv('DISCORD')
 #             embed.add_field(name = "Status", value = skin_status, inline = True)
 #             await ctx.send(embed = embed)
 
-@tree.command(name = "cases", description="List prices of all tracked cases", guild=discord.Object(id=1105849142250573824))
+@tree.command(name = "cases", description="List prices of all tracked cases")
 async def command_getCasePrices(ctx):
-    print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep='')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name}")
+    # print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep='')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name}")
     sql_query = "SELECT * FROM cases WHERE status = 'tracked';"
     sum = 0
     cases_value = []
@@ -158,7 +158,7 @@ async def command_getCasePrices(ctx):
         embed.add_field(name = "Cena 1 szt.", value = str (case_formated_price)+" zł", inline = True)
         embed.add_field(name = "Cena", value=str(case_sum_price)+" zł", inline = True)
         # embed.add_field(name = "Cena netto", value=str(sum_price*0,8698)+" zł", inline = True)
-        await ctx.send(embed=embed)
+        await ctx.followup.send(embed=embed)
     for i in range(0,len(cases_value)):
         sum = round(sum + cases_value[i], 2)
     embedSumPrice = discord.Embed(
@@ -166,7 +166,7 @@ async def command_getCasePrices(ctx):
         colour = discord.Colour.green(),
         description= "Całkowita wartość skrzynek"
     )
-    await ctx.send(embed=embedSumPrice)
+    await ctx.followup.send(embed=embedSumPrice)
     # if user_input == None:
     #     print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep='')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Issuing function {sys._getframe().f_code.co_name}")
     #     sql_query = "SELECT * FROM cases WHERE status = 'tracked';"
@@ -255,7 +255,7 @@ async def command_getCasePrices(ctx):
 
 @bot.event
 async def on_ready():
-    await tree.sync(guild=discord.Object(id=1105849142250573824))
+    await tree.sync()
     print(f"\033[0;90m{datetime.datetime.now().isoformat(timespec='seconds', sep=' ')}\033[0;94m INFO\033[0;35m     core.py\033[0;37m Listening for commands...")
 
 if __name__ == "__main__":
